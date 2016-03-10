@@ -34,10 +34,10 @@ public class JDBCExample {
     
     public static void main(String args[]){
         try {
-            String url="jdbc:mysql://HOST:3306/BD";
+            String url="jdbc:mysql://desarrollo.is.escuelaing.edu.co:3306/bdprueba";
             String driver="com.mysql.jdbc.Driver";
-            String user="USER";
-            String pwd="PWD";
+            String user="bdprueba";
+            String pwd="bdprueba";
                         
             Class.forName(driver);
             Connection con=DriverManager.getConnection(url,user,pwd);
@@ -116,15 +116,29 @@ public class JDBCExample {
      * @param con
      * @param codigoPedido código del pedido cuyo total se calculará
      * @return el costo total del pedido (suma de: cantidades*precios)
+     * @throws java.sql.SQLException
      */
-    public static int valorTotalPedido(Connection con, int codigoPedido){
-        
+    public static int valorTotalPedido(Connection con, int codigoPedido) throws SQLException{
+        try{
+            con.setAutoCommit(false);
+            System.out.println("paso 1");
+            PreparedStatement calcularValor = con.prepareStatement("SELECT SUM(precio) FROM ORD_PRODUCTOS INNER JOIN ORD_DETALLES_PEDIDO ON ORD_PRODUCTOS.codigo=ORD_DETALLES_PEDIDO.producto_fk INNER JOIN ORD_PEDIDOS ON ORD_DETALLES_PEDIDO.pedido_fk=ORD_PRODUCTOS.codigo WHERE ORD_PEDIDOS.codigo=?");
+            System.out.println("paso 2");
+            calcularValor.setString(0, codigoPedido+"");
+            System.out.println("paso 3");
+            ResultSet executeQuery = calcularValor.executeQuery();
+            System.out.println("paso 4");
+            if(executeQuery.next()){
+                return executeQuery.getInt(1);
+            }else return 0;
+        }catch(SQLException e){
+            return -1;
+        }
         //Crear prepared statement
         //asignar parámetros
         //usar executeQuery
         //Sacar resultado del ResultSet
-        
-        return 0;
+
     }
     
 
